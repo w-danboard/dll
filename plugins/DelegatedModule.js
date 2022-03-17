@@ -1,4 +1,6 @@
 const Module = require('webpack/lib/Module')
+// const RawSource = require('webpack/lib/RawSource')
+const { RawSource } = require("webpack-sources");
 const DelegatedSourceDependency = require('./dependencies/DelegatedSourceDependency')
 
 class DelegatedModule extends Module {
@@ -34,6 +36,11 @@ class DelegatedModule extends Module {
     // 把这个依赖添加当前模块的依赖数组中
     this.addDependency(this.delegatedSourceDependency)
     callback()
+  }
+  // 返回一个源代码对象
+  source () {
+    let str = `module.exports = (__webpack_require__('${this.sourceRequest}'))('${this.request}');`
+    return new RawSource(str)
   }
 }
 

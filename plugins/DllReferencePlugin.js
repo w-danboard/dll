@@ -18,21 +18,21 @@ class DllReferencePlugin {
      * 1.把那些在manifest里面的模块变成外部模块(特殊处理)，把它变成代理模块，也就是不再打包了，让别人来代理
      * 2.配置external 
      */
-    compiler.hooks.compile.tap('DllReferencePlugin', (params, { normalModuleFactory }) => {
+    compiler.hooks.compile.tap('DllReferencePlugin', ({ normalModuleFactory }) => {
       let manifest = this.options.manifest
-      // 1.注册外部模块 'dll-reference _dll_utils'
+      // 1.注册外部模块 'dll-reference _dll_utils' 变成 window._dll_utils
       // external: {
       //   'dll-reference _dll_utils': '_dll_utils'
       // },
       let name = manifest.name
       let content = manifest.content
       let source = `dll-reference ${name}` // 代理的来源模块ID dll-reference _dl_utils
-      const external = {
+      const externals = {
         [source]: name
       }
       // 创建一个外部模块工厂插件
       // require('dll-reference _dll_utils');  module.export = '_dll_utils'
-      new ExternalModuleFactoryPlugin('var', external).apply(normalModuleFactory)
+      new ExternalModuleFactoryPlugin('var', externals).apply(normalModuleFactory)
 
       // 2.创建代理模块
       new DelegatedModuleFactoryPlugin({
